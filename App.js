@@ -21,10 +21,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 
 
-
-
-
-
 class Drinks extends React.Component {
 
   constructor(props) {
@@ -41,7 +37,7 @@ class Drinks extends React.Component {
 
 
   componentDidMount() {
-    fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Cocktail')
+    fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Ordinary Drink')
       .then((response) => response.json())
       .then((json) => {
         this.setState({ list: json.drinks });
@@ -122,7 +118,7 @@ class Filters extends React.Component {
     this.state = {
       data: [],
       isLoading: true,
-      
+      currentstrCategory: ''
     };
 
    
@@ -167,12 +163,16 @@ class Filters extends React.Component {
   onCheck = (id) => {
    
     this.setState( ({ data }) => ({
-data: data.map((data) => data.id === id ? ({...data, isChecked: !data.isChecked}) : {...data} )
-    }));
+      data: data.map((data) => data.id === id ? ({ ...data, isChecked: !data.isChecked }) : { ...data })
+         }));
     
     console.log("pressed:", id);
+    console.log(this.state.currentstrCategory);
   }
 
+  drinkSet = (data) => {
+    this.setState(({ currentstrCategory }) =>  ({currentstrCategory: data.isChecked === true ? data.strCategory : ''}))
+  }
 
        
   render () {
@@ -181,11 +181,14 @@ data: data.map((data) => data.id === id ? ({...data, isChecked: !data.isChecked}
     
     console.log(this.state.data);
 
-  
+    const { currentstrCategory } = this.state;
+
+    console.log(currentstrCategory);
   
     const { navigation } = this.props;
     
-return (
+    return (
+  <ScrollView>
   <View>
     <Text>
       Filters
@@ -222,14 +225,25 @@ return (
      </View>
 
     <TouchableOpacity onPress={() => navigation.navigate("Drinks", { message: "Hello from Filter" })} style={ styles.centered }>
-      <Text style={ styles.button }>
+      <Text style={ styles.button }  onPress={() => this.drinkSet}>
         Apply
       </Text>
     </TouchableOpacity>
-   </View>
+        </View>
+        </ScrollView>
   
 )
   }
+}
+
+const FilterButton = ({navigation}) => {
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate("Filters")}>
+    <Image 
+        style={{ width: 20, height: 20, marginRight: 10 }}
+        source={require('./assets/filter.png')} />
+</TouchableOpacity >
+  )
 }
 
 
@@ -238,7 +252,7 @@ const Stack = createStackNavigator();
 
 export default function App(props) {
   
-  const { navigation } = props;
+  const { navigation } = this.props;
  
 
   
@@ -251,12 +265,8 @@ export default function App(props) {
           options={{
            
             headerRight: () => (
-               <TouchableOpacity onPress={() => navigation.navigate("Filters")}>
-                <Image 
-                    style={{ width: 20, height: 20, marginRight: 10 }}
-                    source={require('./assets/filter.png')} />
-</TouchableOpacity >
               
+              <FilterButton navigation={navigation}/>
              
             ),
         
